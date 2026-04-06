@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Framer Exporter</title>
+  <title>Website Exporter</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -16,6 +16,7 @@
       --accent: #7c3aed;
       --accent-hover: #6d28d9;
       --success: #22c55e;
+      --warn: #f59e0b;
       --error: #ef4444;
     }
 
@@ -36,7 +37,7 @@
       border-radius: 16px;
       padding: 40px;
       width: 100%;
-      max-width: 520px;
+      max-width: 560px;
     }
 
     .logo {
@@ -54,6 +55,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
 
     .logo-icon svg { display: block; }
@@ -97,10 +99,7 @@
       transition: border-color 0.15s;
     }
 
-    input[type="url"]:focus {
-      border-color: var(--accent);
-    }
-
+    input[type="url"]:focus { border-color: var(--accent); }
     input[type="url"]::placeholder { color: var(--muted); }
 
     button {
@@ -149,14 +148,43 @@
       margin: 28px 0;
     }
 
-    .notes {
+    .compat-title {
       font-size: 12px;
+      font-weight: 600;
       color: var(--muted);
-      line-height: 1.6;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
     }
 
-    .notes ul { padding-left: 16px; }
-    .notes li { margin-bottom: 4px; }
+    .compat-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .compat-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .compat-badge {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 5px;
+      margin-top: 1px;
+    }
+
+    .badge-works   { background: rgba(34,197,94,0.12);  color: var(--success); }
+    .badge-partial { background: rgba(245,158,11,0.12); color: var(--warn); }
+    .badge-no      { background: rgba(239,68,68,0.12);  color: var(--error); }
+
+    .compat-label { font-weight: 500; }
+    .compat-note  { color: var(--muted); margin-left: 4px; }
   </style>
 </head>
 <body>
@@ -168,11 +196,11 @@
           <path d="M10 3V10M10 10L17 7M10 10L3 7M10 10V17" stroke="white" stroke-width="1.2" stroke-opacity="0.4"/>
         </svg>
       </div>
-      <h1>Framer Exporter</h1>
+      <h1>Website Exporter</h1>
     </div>
 
     <p class="subtitle">
-      Enter a published Framer site URL to download its HTML, CSS, JavaScript, and all images as a ZIP archive.
+      Download any public website as a ZIP archive - HTML, CSS, JavaScript, fonts, and images with local paths rewritten.
     </p>
 
     <label for="url-input">Site URL</label>
@@ -180,7 +208,7 @@
       <input
         type="url"
         id="url-input"
-        placeholder="https://yoursite.framer.website"
+        placeholder="www.example.com"
         autocomplete="off"
         spellcheck="false"
       />
@@ -191,13 +219,24 @@
 
     <hr class="divider">
 
-    <div class="notes">
-      <ul>
-        <li>Downloads HTML, CSS, JS, fonts, and images</li>
-        <li>Rewrites asset paths to work offline</li>
-        <li>Large sites with many assets may take a minute</li>
-        <li>Does not export Framer interactions or CMS data</li>
-      </ul>
+    <p class="compat-title">Platform compatibility</p>
+    <div class="compat-grid">
+      <div class="compat-row">
+        <span class="compat-badge badge-works">Works</span>
+        <span><span class="compat-label">Framer, Webflow, Carrd, static sites</span><span class="compat-note">- server-rendered HTML, clean export</span></span>
+      </div>
+      <div class="compat-row">
+        <span class="compat-badge badge-partial">Partial</span>
+        <span><span class="compat-label">Squarespace, Wix, WordPress</span><span class="compat-note">- assets export fine, platform scripts won't work offline</span></span>
+      </div>
+      <div class="compat-row">
+        <span class="compat-badge badge-partial">Partial</span>
+        <span><span class="compat-label">Next.js / React SPAs</span><span class="compat-note">- captures initial HTML shell only, JS-rendered content is missed</span></span>
+      </div>
+      <div class="compat-row">
+        <span class="compat-badge badge-no">Won't work</span>
+        <span><span class="compat-label">Sites behind login or paywalls</span><span class="compat-note">- server has no session cookie</span></span>
+      </div>
     </div>
   </div>
 
