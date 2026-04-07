@@ -125,15 +125,16 @@ function hashStr(str) {
 function urlToAssetPath(assetUrl) {
   try {
     const u = new URL(assetUrl);
-    const basename = nodePath.basename(u.pathname) || 'file';
+    // Preserve directory structure so JS relative imports (import('./react.mjs'))
+    // resolve correctly when modules live next to each other
+    const pathParts = u.pathname.split('/').filter(Boolean);
+    const basename = pathParts[pathParts.length - 1] || 'file';
     const ext = nodePath.extname(basename);
     const stem = basename.slice(0, basename.length - ext.length);
-    // Include hostname to prevent cross-origin collisions
-    const dir = (u.hostname + '/' + u.pathname.replace(/^\//, ''))
-      .split('/').slice(0, -1).join('_');
-    const flat = (dir ? dir + '_' : '') + stem;
+    const dirParts = pathParts.slice(0, -1);
     const querySuffix = u.search ? '_' + hashStr(u.search) : '';
-    return 'assets/' + (flat || 'file') + querySuffix + ext;
+    const filename = (stem || 'file') + querySuffix + ext;
+    return ['assets', u.hostname, ...dirParts, filename].join('/');
   } catch { return 'assets/file_' + hashStr(assetUrl); }
 }
 
