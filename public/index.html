@@ -231,31 +231,32 @@
     .compat-grid {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 0;
+      border-top: 1px solid var(--border);
     }
 
     .compat-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 16px;
+      align-items: baseline;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
       font-size: 13px;
       line-height: 1.5;
     }
 
-    .compat-badge {
-      flex-shrink: 0;
+    .compat-status {
       font-family: 'Geist Mono', monospace;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 500;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      padding: 3px 7px;
-      margin-top: 1px;
     }
 
-    .badge-works   { background: #e6f9ee; color: #00884d; }
-    .badge-partial { background: #fff4e6; color: #b85a00; }
-    .badge-no      { background: #fff0f0; color: #cc2200; }
+    .status-works   { color: var(--success); }
+    .status-partial { color: var(--orange); }
+    .status-no      { color: var(--error); }
 
     .compat-label { font-weight: 600; }
     .compat-note  { color: var(--gray); }
@@ -286,7 +287,7 @@
     <div class="container">
       <div class="accent-bar"></div>
       <h1>Website Exporter</h1>
-      <p class="subtitle">Download any public website as a ZIP — HTML, CSS, JS, fonts, and images with all paths rewritten for offline use.</p>
+      <p class="subtitle">Download any public website as a ZIP. HTML, CSS, JS, fonts, and images with all paths rewritten for offline use.</p>
 
       <div class="field">
         <label for="url-input">Site URL</label>
@@ -314,20 +315,20 @@
       <p class="compat-title">Platform compatibility</p>
       <div class="compat-grid">
         <div class="compat-row">
-          <span class="compat-badge badge-works">Works</span>
-          <span><span class="compat-label">Framer, Webflow, Carrd, static sites</span><span class="compat-note"> — server-rendered HTML, clean export</span></span>
+          <span class="compat-status status-works">Works</span>
+          <span><span class="compat-label">Framer, Webflow, Carrd, static sites.</span> <span class="compat-note">Server-rendered HTML, clean export.</span></span>
         </div>
         <div class="compat-row">
-          <span class="compat-badge badge-partial">Partial</span>
-          <span><span class="compat-label">Squarespace, Wix, WordPress</span><span class="compat-note"> — assets export, platform scripts won't work offline</span></span>
+          <span class="compat-status status-partial">Partial</span>
+          <span><span class="compat-label">Squarespace, Wix, WordPress.</span> <span class="compat-note">Assets export fine. Platform scripts won't work offline.</span></span>
         </div>
         <div class="compat-row">
-          <span class="compat-badge badge-partial">Partial</span>
-          <span><span class="compat-label">Next.js / React SPAs</span><span class="compat-note"> — initial HTML only, JS-rendered content missed</span></span>
+          <span class="compat-status status-partial">Partial</span>
+          <span><span class="compat-label">Next.js / React SPAs.</span> <span class="compat-note">Initial HTML only. JS-rendered content is missed.</span></span>
         </div>
         <div class="compat-row">
-          <span class="compat-badge badge-no">Won't work</span>
-          <span><span class="compat-label">Sites behind login or paywalls</span><span class="compat-note"> — server has no session cookie</span></span>
+          <span class="compat-status status-no">Won't work</span>
+          <span><span class="compat-label">Sites behind login or paywalls.</span> <span class="compat-note">Server has no session cookie.</span></span>
         </div>
       </div>
     </div>
