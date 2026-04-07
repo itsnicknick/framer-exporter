@@ -41,29 +41,14 @@
     }
 
     .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
       margin-bottom: 32px;
     }
 
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: var(--accent);
-      border-radius: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .logo-icon svg { display: block; }
-
-    h1 {
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
+    .logo-img {
+      height: 40px;
+      width: auto;
+      display: block;
+      filter: invert(1);
     }
 
     .subtitle {
@@ -190,13 +175,7 @@
 <body>
   <div class="card">
     <div class="logo">
-      <div class="logo-icon">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M10 3L17 7V13L10 17L3 13V7L10 3Z" fill="white" fill-opacity="0.9"/>
-          <path d="M10 3V10M10 10L17 7M10 10L3 7M10 10V17" stroke="white" stroke-width="1.2" stroke-opacity="0.4"/>
-        </svg>
-      </div>
-      <h1>Website Exporter</h1>
+      <img src="logo.png" alt="Skylight Studio" class="logo-img">
     </div>
 
     <p class="subtitle">
