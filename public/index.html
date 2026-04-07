@@ -273,7 +273,7 @@
       }
 
       btn.disabled = true;
-      setStatus('loading', 'Fetching site and downloading assets...');
+      setStatus('loading', 'Crawling all pages and downloading assets - this may take a while...');
 
       try {
         const res = await fetch('/export', {
