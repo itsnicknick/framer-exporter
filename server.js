@@ -114,13 +114,23 @@ function urlToPagePath(pageUrl) {
   } catch { return 'index.html'; }
 }
 
+function hashStr(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) { h = Math.imul(31, h) + str.charCodeAt(i) | 0; }
+  return Math.abs(h).toString(36);
+}
+
 function urlToAssetPath(assetUrl) {
   try {
     const u = new URL(assetUrl);
-    const raw = (u.pathname + (u.search ? u.search.replace(/[?&=]/g, '_') : ''))
-      .replace(/^\//, '').replace(/\//g, '_');
-    return 'assets/' + (raw || 'file');
-  } catch { return 'assets/file_' + Date.now(); }
+    const basename = nodePath.basename(u.pathname) || 'file';
+    const ext = nodePath.extname(basename);                      // e.g. '.png'
+    const stem = basename.slice(0, basename.length - ext.length); // e.g. 'image'
+    const dir = u.pathname.replace(/^\//, '').split('/').slice(0, -1).join('_');
+    const flat = (dir ? dir + '_' : '') + stem;
+    const querySuffix = u.search ? '_' + hashStr(u.search) : '';
+    return 'assets/' + (flat || 'file') + querySuffix + ext;
+  } catch { return 'assets/file_' + hashStr(assetUrl); }
 }
 
 function relPath(fromFile, toFile) {
@@ -309,6 +319,21 @@ app.post('/export', async (req, res) => {
       $('source').each((_, el) => { rewriteAttr(el, 'src'); rewriteSrcset(el, 'srcset'); });
       $('video').each((_, el) => { rewriteAttr(el, 'src'); rewriteAttr(el, 'poster'); });
       $('audio[src]').each((_, el) => rewriteAttr(el, 'src'));
+
+      // Rewrite <style> block url() references (e.g. @font-face, background-image)
+      $('style').each((_, el) => {
+        const content = $(el).html();
+        if (!content) return;
+        $(el).html(content.replace(
+          /url\(\s*['"]?([^'"\)\s]+)['"]?\s*\)/g,
+          (match, ref) => {
+            if (ref.startsWith('data:')) return match;
+            const abs = resolveUrl(pageUrl, ref);
+            if (abs && assets.has(abs)) return `url('${relPath(localPath, assets.get(abs).local)}')`;
+            return match;
+          }
+        ));
+      });
 
       // Rewrite inline style url() references
       $('[style]').each((_, el) => {
