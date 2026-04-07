@@ -37,7 +37,9 @@ async function fetchAsset(assetUrl) {
       validateStatus: s => s < 400
     });
     if (r.status >= 400) return null;
-    return { buffer: Buffer.from(r.data), type: r.headers['content-type'] || '' };
+    const type = r.headers['content-type'] || '';
+    if (type.includes('text/html')) return null; // page URL mistakenly queued as asset
+    return { buffer: Buffer.from(r.data), type };
   } catch (e) {
     console.warn('Skip asset:', assetUrl.slice(0, 80), '-', e.message);
     return null;
@@ -155,6 +157,11 @@ function parseSrcset(srcset) {
   return srcset.split(',').map(s => s.trim().split(/\s+/)[0]).filter(Boolean);
 }
 
+const ASSET_LINK_RELS = new Set([
+  'stylesheet', 'icon', 'shortcut icon', 'apple-touch-icon',
+  'apple-touch-icon-precomposed', 'preload', 'modulepreload', 'manifest'
+]);
+
 // ── Export endpoint ───────────────────────────────────────────────────────────
 
 app.post('/export', async (req, res) => {
@@ -197,8 +204,11 @@ app.post('/export', async (req, res) => {
         if (abs) assetUrls.add(abs);
       };
 
-      // Standard asset tags
-      $('link[href]').each((_, el) => addAsset($(el).attr('href')));
+      // Only download <link> tags that are actual assets, not canonical/alternate/etc.
+      $('link[href]').each((_, el) => {
+        const rel = ($(el).attr('rel') || '').toLowerCase().trim();
+        if (ASSET_LINK_RELS.has(rel)) addAsset($(el).attr('href'));
+      });
       $('script[src]').each((_, el) => addAsset($(el).attr('src')));
       $('img').each((_, el) => {
         addAsset($(el).attr('src'));
@@ -318,7 +328,10 @@ app.post('/export', async (req, res) => {
         $(el).attr(attr, rewritten);
       };
 
-      $('link[href]').each((_, el) => rewriteAttr(el, 'href'));
+      $('link[href]').each((_, el) => {
+        const rel = ($(el).attr('rel') || '').toLowerCase().trim();
+        if (ASSET_LINK_RELS.has(rel)) rewriteAttr(el, 'href');
+      });
       $('script[src]').each((_, el) => rewriteAttr(el, 'src'));
       $('img').each((_, el) => {
         rewriteAttr(el, 'src');
