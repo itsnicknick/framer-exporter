@@ -32,18 +32,30 @@
 
     /* ── Header ── */
     header {
-      border-bottom: 1px solid var(--border);
-      padding: 0 40px;
-      height: 64px;
+      padding: 0 60px;
+      height: 100px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
     }
 
     header img {
-      height: 26px;
+      height: 78px;
       width: auto;
       display: block;
     }
+
+    .header-link {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray);
+      text-decoration: none;
+    }
+
+    .header-link:hover { color: var(--black); }
 
     /* ── Main ── */
     main {
@@ -57,13 +69,6 @@
     .container {
       width: 100%;
       max-width: 540px;
-    }
-
-    .accent-bar {
-      width: 36px;
-      height: 3px;
-      background: var(--orange);
-      margin-bottom: 22px;
     }
 
     h1 {
@@ -263,14 +268,14 @@
 
     /* ── Footer ── */
     footer {
-      border-top: 1px solid var(--border);
-      padding: 20px 40px;
+      padding: 32px 60px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-family: 'Geist Mono', monospace;
       font-size: 11px;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       color: var(--gray);
     }
 
@@ -281,11 +286,11 @@
 <body>
   <header>
     <img src="logo.png" alt="Skylight Studio">
+    <a href="https://skylightstudio.co" target="_blank" class="header-link">skylightstudio.co</a>
   </header>
 
   <main>
     <div class="container">
-      <div class="accent-bar"></div>
       <h1>Website Exporter</h1>
       <p class="subtitle">Download any public website as a ZIP. HTML, CSS, JS, fonts, and images with all paths rewritten for offline use.</p>
 
@@ -335,8 +340,8 @@
   </main>
 
   <footer>
-    <span>Skylight Studio internal tool</span>
-    <a href="https://skylightstudio.co" target="_blank">skylightstudio.co</a>
+    <span>Internal Tool</span>
+    <span>Skylight Studio &copy; 2025</span>
   </footer>
 
   <script>
