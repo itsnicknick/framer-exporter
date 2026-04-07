@@ -124,9 +124,11 @@ function urlToAssetPath(assetUrl) {
   try {
     const u = new URL(assetUrl);
     const basename = nodePath.basename(u.pathname) || 'file';
-    const ext = nodePath.extname(basename);                      // e.g. '.png'
-    const stem = basename.slice(0, basename.length - ext.length); // e.g. 'image'
-    const dir = u.pathname.replace(/^\//, '').split('/').slice(0, -1).join('_');
+    const ext = nodePath.extname(basename);
+    const stem = basename.slice(0, basename.length - ext.length);
+    // Include hostname to prevent cross-origin collisions
+    const dir = (u.hostname + '/' + u.pathname.replace(/^\//, ''))
+      .split('/').slice(0, -1).join('_');
     const flat = (dir ? dir + '_' : '') + stem;
     const querySuffix = u.search ? '_' + hashStr(u.search) : '';
     return 'assets/' + (flat || 'file') + querySuffix + ext;
@@ -169,6 +171,8 @@ app.post('/export', async (req, res) => {
     // norm -> { localPath, $, assetUrls }
     const pages = new Map();
 
+    const queuedPages = new Set(crawlQueue.map(normalizePageUrl));
+
     // ── Crawl ───────────────────────────────────────────────────────────────
     while (crawlQueue.length > 0 && visitedPages.size < MAX_PAGES) {
       const pageUrl = crawlQueue.shift();
@@ -178,8 +182,11 @@ app.post('/export', async (req, res) => {
 
       setStatus(`Crawling page ${visitedPages.size}: ${new URL(pageUrl).pathname || '/'}`);
 
-      const html = await fetchHtml(pageUrl);
-      if (!html) { console.log('  -> skipped (4xx/error)'); continue; }
+      let html;
+      try { html = await fetchHtml(pageUrl); } catch (e) {
+        console.warn('Failed to fetch page:', pageUrl, e.message); continue;
+      }
+      if (!html) { console.log('  -> skipped (4xx)'); continue; }
 
       const $ = cheerio.load(html);
       const assetUrls = new Set();
@@ -208,12 +215,12 @@ app.post('/export', async (req, res) => {
 
       // Inline style url() references
       $('[style]').each((_, el) => {
-        extractCssRefs($(el).attr('style')).forEach(ref => addAsset(resolveUrl(pageUrl, ref)));
+        extractCssRefs($(el).attr('style')).forEach(ref => addAsset(ref));
       });
 
       // <style> blocks
       $('style').each((_, el) => {
-        extractCssRefs($(el).html() || '').forEach(ref => addAsset(resolveUrl(pageUrl, ref)));
+        extractCssRefs($(el).html() || '').forEach(ref => addAsset(ref));
       });
 
       // Internal links to crawl
@@ -223,7 +230,10 @@ app.post('/export', async (req, res) => {
         const abs = resolveUrl(pageUrl, href);
         if (!abs || !isSameDomain(abs, baseUrl)) return;
         const normAbs = normalizePageUrl(abs);
-        if (!visitedPages.has(normAbs)) crawlQueue.push(abs);
+        if (!visitedPages.has(normAbs) && !queuedPages.has(normAbs)) {
+          queuedPages.add(normAbs);
+          crawlQueue.push(abs);
+        }
       });
 
       pages.set(norm, { localPath: urlToPagePath(pageUrl), $, assetUrls });
@@ -248,7 +258,7 @@ app.post('/export', async (req, res) => {
       const r = await fetchAsset(u);
       if (!r) continue;
       const local = urlToAssetPath(u);
-      const isCss = u.endsWith('.css') || r.type.includes('css');
+      const isCss = nodePath.extname(new URL(u).pathname) === '.css' || r.type.includes('css');
       assets.set(u, { local, buffer: r.buffer, isCss });
       if (isCss) cssEntries.push({ url: u, text: r.buffer.toString('utf8') });
     }
