@@ -4,18 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Website Exporter — Skylight Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --black:   #000000;
       --white:   #ffffff;
-      --blue:    #0099ff;
       --orange:  #ff7700;
       --gray:    #7d7d7d;
       --light:   #f7f7f7;
-      --dark:    #1f1e1e;
-      --border:  #e8e8e8;
+      --border:  #8888881a;
       --success: #00bb57;
       --error:   #ff3333;
     }
@@ -39,7 +40,7 @@
     }
 
     header img {
-      height: 28px;
+      height: 26px;
       width: auto;
       display: block;
     }
@@ -50,97 +51,133 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 60px 24px;
+      padding: 72px 24px;
     }
 
     .container {
       width: 100%;
-      max-width: 560px;
+      max-width: 540px;
     }
 
-    /* Orange accent bar */
     .accent-bar {
-      width: 40px;
-      height: 4px;
+      width: 36px;
+      height: 3px;
       background: var(--orange);
-      margin-bottom: 24px;
-      border-radius: 2px;
+      margin-bottom: 22px;
     }
 
     h1 {
-      font-size: 32px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 30px;
       font-weight: 700;
       letter-spacing: -0.5px;
       line-height: 1.15;
-      margin-bottom: 12px;
-      color: var(--black);
+      margin-bottom: 10px;
     }
 
     .subtitle {
       font-size: 15px;
       color: var(--gray);
       line-height: 1.6;
-      margin-bottom: 40px;
+      margin-bottom: 44px;
     }
 
-    /* ── Form ── */
+    /* ── Form field ── */
+    .field {
+      margin-bottom: 28px;
+    }
+
     label {
       display: block;
+      font-family: 'Geist Mono', monospace;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--gray);
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
-    .input-row {
+    .input-wrap {
+      position: relative;
       display: flex;
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 0;
     }
 
     input[type="url"] {
       flex: 1;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-family: inherit;
-      font-size: 15px;
-      color: var(--black);
       background: var(--white);
+      border: none;
       outline: none;
-      transition: border-color 0.15s;
+      padding: 7px 12px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 17px;
+      font-weight: 400;
+      color: var(--black);
+      line-height: 30px;
+      width: 100%;
     }
 
-    input[type="url"]:focus { border-color: var(--blue); }
-    input[type="url"]::placeholder { color: #bbb; }
+    input[type="url"]::placeholder { color: #bfbfbf; }
+
+    /* Framer-style border via wrapper pseudo-element */
+    .input-border {
+      position: relative;
+      flex: 1;
+      display: flex;
+    }
+
+    .input-border::after {
+      content: '';
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--border);
+      transition: border-color 0.15s, border-width 0.1s;
+    }
+
+    .input-border:focus-within::after {
+      border-color: var(--black);
+      border-width: 1px;
+    }
+
+    /* ── Button ── */
+    .btn-wrap {
+      display: flex;
+      justify-content: flex-start;
+      margin-top: 4px;
+    }
 
     button {
-      background: var(--blue);
+      background: var(--black);
       color: var(--white);
-      border: none;
-      border-radius: 8px;
-      padding: 12px 22px;
-      font-family: inherit;
-      font-size: 15px;
-      font-weight: 600;
+      border: 1px solid var(--black);
+      padding: 2px 28px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 34px;
       cursor: pointer;
       transition: opacity 0.15s;
-      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    button:hover:not(:disabled) { opacity: 0.85; }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    button:hover:not(:disabled) { opacity: 0.75; }
+    button:disabled { opacity: 0.35; cursor: not-allowed; }
 
     /* ── Status ── */
     .status {
-      font-size: 13px;
-      min-height: 20px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 12px;
+      min-height: 18px;
+      margin-top: 16px;
       display: flex;
       align-items: center;
       gap: 8px;
-      font-family: 'Courier New', monospace;
     }
 
     .status.loading { color: var(--gray); }
@@ -148,10 +185,10 @@
     .status.error   { color: var(--error); }
 
     .spinner {
-      width: 13px;
-      height: 13px;
-      border: 2px solid var(--border);
-      border-top-color: var(--blue);
+      width: 12px;
+      height: 12px;
+      border: 1.5px solid #ddd;
+      border-top-color: var(--black);
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       flex-shrink: 0;
@@ -160,52 +197,54 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Divider ── */
-    .divider {
+    hr {
       border: none;
       border-top: 1px solid var(--border);
-      margin: 40px 0;
+      margin: 44px 0;
     }
 
     /* ── Compatibility ── */
     .compat-title {
+      font-family: 'Geist Mono', monospace;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 500;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--gray);
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .compat-grid {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
 
     .compat-row {
       display: flex;
       align-items: flex-start;
-      gap: 10px;
+      gap: 12px;
       font-size: 13px;
+      line-height: 1.5;
     }
 
     .compat-badge {
       flex-shrink: 0;
+      font-family: 'Geist Mono', monospace;
       font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
+      font-weight: 500;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 4px;
+      padding: 3px 7px;
       margin-top: 1px;
     }
 
-    .badge-works   { background: #e6f9ee; color: var(--success); }
-    .badge-partial { background: #fff4e6; color: var(--orange); }
-    .badge-no      { background: #fff0f0; color: var(--error); }
+    .badge-works   { background: #e6f9ee; color: #00884d; }
+    .badge-partial { background: #fff4e6; color: #b85a00; }
+    .badge-no      { background: #fff0f0; color: #cc2200; }
 
-    .compat-label { font-weight: 600; color: var(--dark); }
-    .compat-note  { color: var(--gray); margin-left: 2px; }
+    .compat-label { font-weight: 600; }
+    .compat-note  { color: var(--gray); }
 
     /* ── Footer ── */
     footer {
@@ -214,16 +253,14 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 12px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.04em;
       color: var(--gray);
     }
 
-    footer a {
-      color: var(--blue);
-      text-decoration: none;
-    }
-
-    footer a:hover { text-decoration: underline; }
+    footer a { color: var(--gray); text-decoration: none; }
+    footer a:hover { color: var(--black); }
   </style>
 </head>
 <body>
@@ -235,23 +272,30 @@
     <div class="container">
       <div class="accent-bar"></div>
       <h1>Website Exporter</h1>
-      <p class="subtitle">Download any public website as a ZIP archive - HTML, CSS, JavaScript, fonts, and images with all paths rewritten for offline use.</p>
+      <p class="subtitle">Download any public website as a ZIP — HTML, CSS, JS, fonts, and images with all paths rewritten for offline use.</p>
 
-      <label for="url-input">Site URL</label>
-      <div class="input-row">
-        <input
-          type="url"
-          id="url-input"
-          placeholder="www.example.com"
-          autocomplete="off"
-          spellcheck="false"
-        />
+      <div class="field">
+        <label for="url-input">Site URL</label>
+        <div class="input-wrap">
+          <div class="input-border">
+            <input
+              type="url"
+              id="url-input"
+              placeholder="www.example.com"
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-wrap">
         <button id="export-btn">Export</button>
       </div>
 
       <div class="status" id="status"></div>
 
-      <hr class="divider">
+      <hr>
 
       <p class="compat-title">Platform compatibility</p>
       <div class="compat-grid">
@@ -261,11 +305,11 @@
         </div>
         <div class="compat-row">
           <span class="compat-badge badge-partial">Partial</span>
-          <span><span class="compat-label">Squarespace, Wix, WordPress</span><span class="compat-note"> — assets export fine, platform scripts won't work offline</span></span>
+          <span><span class="compat-label">Squarespace, Wix, WordPress</span><span class="compat-note"> — assets export, platform scripts won't work offline</span></span>
         </div>
         <div class="compat-row">
           <span class="compat-badge badge-partial">Partial</span>
-          <span><span class="compat-label">Next.js / React SPAs</span><span class="compat-note"> — captures initial HTML shell only, JS-rendered content missed</span></span>
+          <span><span class="compat-label">Next.js / React SPAs</span><span class="compat-note"> — initial HTML only, JS-rendered content missed</span></span>
         </div>
         <div class="compat-row">
           <span class="compat-badge badge-no">Won't work</span>
