@@ -3,123 +3,155 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Website Exporter</title>
+  <title>Website Exporter — Skylight Studio</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0d0d0f;
-      --surface: #18181b;
-      --border: #2a2a30;
-      --text: #f4f4f5;
-      --muted: #71717a;
-      --accent: #7c3aed;
-      --accent-hover: #6d28d9;
-      --success: #22c55e;
-      --warn: #f59e0b;
-      --error: #ef4444;
+      --black:   #000000;
+      --white:   #ffffff;
+      --blue:    #0099ff;
+      --orange:  #ff7700;
+      --gray:    #7d7d7d;
+      --light:   #f7f7f7;
+      --dark:    #1f1e1e;
+      --border:  #e8e8e8;
+      --success: #00bb57;
+      --error:   #ff3333;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: var(--white);
+      color: var(--black);
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+    }
+
+    header img {
+      height: 28px;
+      width: auto;
+      display: block;
+    }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 60px 24px;
     }
 
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 40px;
+    .container {
       width: 100%;
       max-width: 560px;
     }
 
-    .logo {
-      margin-bottom: 32px;
+    /* Orange accent bar */
+    .accent-bar {
+      width: 40px;
+      height: 4px;
+      background: var(--orange);
+      margin-bottom: 24px;
+      border-radius: 2px;
     }
 
-    .logo-img {
-      height: 40px;
-      width: auto;
-      display: block;
-      filter: invert(1);
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      color: var(--black);
     }
 
     .subtitle {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 28px;
-      line-height: 1.5;
+      font-size: 15px;
+      color: var(--gray);
+      line-height: 1.6;
+      margin-bottom: 40px;
     }
 
+    /* ── Form ── */
     label {
       display: block;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gray);
       margin-bottom: 8px;
     }
 
     .input-row {
       display: flex;
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     input[type="url"] {
       flex: 1;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 11px 14px;
-      color: var(--text);
-      font-size: 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--black);
+      background: var(--white);
       outline: none;
       transition: border-color 0.15s;
     }
 
-    input[type="url"]:focus { border-color: var(--accent); }
-    input[type="url"]::placeholder { color: var(--muted); }
+    input[type="url"]:focus { border-color: var(--blue); }
+    input[type="url"]::placeholder { color: #bbb; }
 
     button {
-      background: var(--accent);
-      color: #fff;
+      background: var(--blue);
+      color: var(--white);
       border: none;
-      border-radius: 9px;
-      padding: 11px 20px;
-      font-size: 14px;
-      font-weight: 500;
+      border-radius: 8px;
+      padding: 12px 22px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
-      transition: background 0.15s, opacity 0.15s;
+      transition: opacity 0.15s;
       white-space: nowrap;
     }
 
-    button:hover:not(:disabled) { background: var(--accent-hover); }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button:hover:not(:disabled) { opacity: 0.85; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    /* ── Status ── */
     .status {
       font-size: 13px;
       min-height: 20px;
       display: flex;
       align-items: center;
       gap: 8px;
+      font-family: 'Courier New', monospace;
     }
 
-    .status.loading { color: var(--muted); }
+    .status.loading { color: var(--gray); }
     .status.success { color: var(--success); }
     .status.error   { color: var(--error); }
 
     .spinner {
-      width: 14px;
-      height: 14px;
+      width: 13px;
+      height: 13px;
       border: 2px solid var(--border);
-      border-top-color: var(--accent);
+      border-top-color: var(--blue);
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       flex-shrink: 0;
@@ -127,25 +159,27 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Divider ── */
     .divider {
       border: none;
       border-top: 1px solid var(--border);
-      margin: 28px 0;
+      margin: 40px 0;
     }
 
+    /* ── Compatibility ── */
     .compat-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 14px;
+      color: var(--gray);
+      margin-bottom: 16px;
     }
 
     .compat-grid {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
 
     .compat-row {
@@ -157,67 +191,94 @@
 
     .compat-badge {
       flex-shrink: 0;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
       margin-top: 1px;
     }
 
-    .badge-works   { background: rgba(34,197,94,0.12);  color: var(--success); }
-    .badge-partial { background: rgba(245,158,11,0.12); color: var(--warn); }
-    .badge-no      { background: rgba(239,68,68,0.12);  color: var(--error); }
+    .badge-works   { background: #e6f9ee; color: var(--success); }
+    .badge-partial { background: #fff4e6; color: var(--orange); }
+    .badge-no      { background: #fff0f0; color: var(--error); }
 
-    .compat-label { font-weight: 500; }
-    .compat-note  { color: var(--muted); margin-left: 4px; }
+    .compat-label { font-weight: 600; color: var(--dark); }
+    .compat-note  { color: var(--gray); margin-left: 2px; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--gray);
+    }
+
+    footer a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="logo">
-      <img src="logo.png" alt="Skylight Studio" class="logo-img">
+  <header>
+    <img src="logo.png" alt="Skylight Studio">
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="accent-bar"></div>
+      <h1>Website Exporter</h1>
+      <p class="subtitle">Download any public website as a ZIP archive - HTML, CSS, JavaScript, fonts, and images with all paths rewritten for offline use.</p>
+
+      <label for="url-input">Site URL</label>
+      <div class="input-row">
+        <input
+          type="url"
+          id="url-input"
+          placeholder="www.example.com"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button id="export-btn">Export</button>
+      </div>
+
+      <div class="status" id="status"></div>
+
+      <hr class="divider">
+
+      <p class="compat-title">Platform compatibility</p>
+      <div class="compat-grid">
+        <div class="compat-row">
+          <span class="compat-badge badge-works">Works</span>
+          <span><span class="compat-label">Framer, Webflow, Carrd, static sites</span><span class="compat-note"> — server-rendered HTML, clean export</span></span>
+        </div>
+        <div class="compat-row">
+          <span class="compat-badge badge-partial">Partial</span>
+          <span><span class="compat-label">Squarespace, Wix, WordPress</span><span class="compat-note"> — assets export fine, platform scripts won't work offline</span></span>
+        </div>
+        <div class="compat-row">
+          <span class="compat-badge badge-partial">Partial</span>
+          <span><span class="compat-label">Next.js / React SPAs</span><span class="compat-note"> — captures initial HTML shell only, JS-rendered content missed</span></span>
+        </div>
+        <div class="compat-row">
+          <span class="compat-badge badge-no">Won't work</span>
+          <span><span class="compat-label">Sites behind login or paywalls</span><span class="compat-note"> — server has no session cookie</span></span>
+        </div>
+      </div>
     </div>
+  </main>
 
-    <p class="subtitle">
-      Download any public website as a ZIP archive - HTML, CSS, JavaScript, fonts, and images with local paths rewritten.
-    </p>
-
-    <label for="url-input">Site URL</label>
-    <div class="input-row">
-      <input
-        type="url"
-        id="url-input"
-        placeholder="www.example.com"
-        autocomplete="off"
-        spellcheck="false"
-      />
-      <button id="export-btn">Export</button>
-    </div>
-
-    <div class="status" id="status"></div>
-
-    <hr class="divider">
-
-    <p class="compat-title">Platform compatibility</p>
-    <div class="compat-grid">
-      <div class="compat-row">
-        <span class="compat-badge badge-works">Works</span>
-        <span><span class="compat-label">Framer, Webflow, Carrd, static sites</span><span class="compat-note">- server-rendered HTML, clean export</span></span>
-      </div>
-      <div class="compat-row">
-        <span class="compat-badge badge-partial">Partial</span>
-        <span><span class="compat-label">Squarespace, Wix, WordPress</span><span class="compat-note">- assets export fine, platform scripts won't work offline</span></span>
-      </div>
-      <div class="compat-row">
-        <span class="compat-badge badge-partial">Partial</span>
-        <span><span class="compat-label">Next.js / React SPAs</span><span class="compat-note">- captures initial HTML shell only, JS-rendered content is missed</span></span>
-      </div>
-      <div class="compat-row">
-        <span class="compat-badge badge-no">Won't work</span>
-        <span><span class="compat-label">Sites behind login or paywalls</span><span class="compat-note">- server has no session cookie</span></span>
-      </div>
-    </div>
-  </div>
+  <footer>
+    <span>Skylight Studio internal tool</span>
+    <a href="https://skylightstudio.co" target="_blank">skylightstudio.co</a>
+  </footer>
 
   <script>
     const btn = document.getElementById('export-btn');
@@ -230,10 +291,10 @@
         status.innerHTML = `<div class="spinner"></div><span>${msg}</span>`;
       } else if (type === 'success') {
         status.className = 'status success';
-        status.textContent = msg;
+        status.textContent = '✓ ' + msg;
       } else if (type === 'error') {
         status.className = 'status error';
-        status.textContent = msg;
+        status.textContent = '✗ ' + msg;
       } else {
         status.className = 'status';
         status.textContent = '';
