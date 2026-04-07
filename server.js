@@ -8,6 +8,11 @@ const app = express();
 app.use(express.json());
 app.use(express.static('public'));
 
+let status = '';
+const setStatus = (msg) => { status = msg; console.log(msg); };
+
+app.get('/status', (_, res) => res.json({ status }));
+
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 const MAX_PAGES = 500;
 
@@ -147,7 +152,7 @@ app.post('/export', async (req, res) => {
   try {
     const baseUrl = new URL(siteUrl).href;
 
-    // Seed crawl queue from sitemap + start URL
+    setStatus('Checking sitemap...');
     const sitemapUrls = await fetchSitemapUrls(baseUrl);
     const crawlQueue = [normalizePageUrl(siteUrl), ...sitemapUrls].map(normalizePageUrl);
     const visitedPages = new Set();
@@ -161,7 +166,7 @@ app.post('/export', async (req, res) => {
       if (visitedPages.has(norm)) continue;
       visitedPages.add(norm);
 
-      console.log(`[${visitedPages.size}/${crawlQueue.length + visitedPages.size}] ${pageUrl}`);
+      setStatus(`Crawling page ${visitedPages.size}: ${new URL(pageUrl).pathname || '/'}`);
 
       const html = await fetchHtml(pageUrl);
       if (!html) { console.log('  -> skipped (4xx/error)'); continue; }
@@ -214,10 +219,7 @@ app.post('/export', async (req, res) => {
       pages.set(norm, { localPath: urlToPagePath(pageUrl), $, assetUrls });
     }
 
-    if (visitedPages.size >= MAX_PAGES) {
-      console.log(`Hit page limit (${MAX_PAGES})`);
-    }
-    console.log(`Crawled ${pages.size} pages. Downloading assets...`);
+    setStatus(`Crawled ${pages.size} pages. Collecting assets...`);
 
     // ── Download assets ─────────────────────────────────────────────────────
     const assets = new Map(); // absUrl -> { local, buffer, isCss }
@@ -228,8 +230,11 @@ app.post('/export', async (req, res) => {
       for (const u of assetUrls) allAssetUrls.add(u);
     }
 
+    let assetCount = 0;
     for (const u of allAssetUrls) {
       if (assets.has(u)) continue;
+      assetCount++;
+      setStatus(`Downloading asset ${assetCount} of ${allAssetUrls.size}: ${nodePath.basename(new URL(u).pathname)}`);
       const r = await fetchAsset(u);
       if (!r) continue;
       const local = urlToAssetPath(u);
@@ -334,7 +339,7 @@ app.post('/export', async (req, res) => {
       });
     }
 
-    console.log(`Building ZIP: ${pages.size} pages, ${assets.size} assets`);
+    setStatus(`Building ZIP: ${pages.size} pages, ${assets.size} assets...`);
 
     // ── Stream ZIP ──────────────────────────────────────────────────────────
     res.setHeader('Content-Type', 'application/zip');
@@ -355,7 +360,7 @@ app.post('/export', async (req, res) => {
     }
 
     await zip.finalize();
-    console.log('Export complete.');
+    setStatus('');
 
   } catch (err) {
     console.error(err.message);

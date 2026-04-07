@@ -273,7 +273,14 @@
       }
 
       btn.disabled = true;
-      setStatus('loading', 'Crawling all pages and downloading assets - this may take a while...');
+      setStatus('loading', 'Starting...');
+
+      const poll = setInterval(async () => {
+        try {
+          const s = await fetch('/status').then(r => r.json());
+          if (s.status) setStatus('loading', s.status);
+        } catch {}
+      }, 800);
 
       try {
         const res = await fetch('/export', {
@@ -299,6 +306,7 @@
       } catch (err) {
         setStatus('error', err.message);
       } finally {
+        clearInterval(poll);
         btn.disabled = false;
       }
     }
