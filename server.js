@@ -153,6 +153,22 @@ function extractCssRefs(css) {
   return urls;
 }
 
+const MIME_EXT = {
+  'text/javascript': '.js', 'application/javascript': '.js',
+  'text/css': '.css',
+  'image/png': '.png', 'image/jpeg': '.jpg', 'image/webp': '.webp',
+  'image/svg+xml': '.svg', 'image/gif': '.gif', 'image/avif': '.avif',
+  'font/woff2': '.woff2', 'font/woff': '.woff', 'font/ttf': '.ttf',
+  'application/json': '.json',
+};
+
+function inferExt(localPath, contentType) {
+  if (nodePath.extname(localPath)) return localPath;
+  const mime = (contentType || '').split(';')[0].trim().toLowerCase();
+  const ext = MIME_EXT[mime];
+  return ext ? localPath + ext : localPath;
+}
+
 function parseSrcset(srcset) {
   if (!srcset) return [];
   return srcset.split(',').map(s => s.trim().split(/\s+/)[0]).filter(Boolean);
@@ -268,8 +284,8 @@ app.post('/export', async (req, res) => {
       setStatus(`Downloading asset ${assetCount} of ${allAssetUrls.size}: ${nodePath.basename(new URL(u).pathname)}`);
       const r = await fetchAsset(u);
       if (!r) continue;
-      const local = urlToAssetPath(u);
-      const isCss = nodePath.extname(new URL(u).pathname) === '.css' || r.type.includes('css');
+      const local = inferExt(urlToAssetPath(u), r.type);
+      const isCss = local.endsWith('.css') || r.type.includes('css');
       assets.set(u, { local, buffer: r.buffer, isCss });
       if (isCss) cssEntries.push({ url: u, text: r.buffer.toString('utf8') });
     }
@@ -280,7 +296,7 @@ app.post('/export', async (req, res) => {
         const abs = resolveUrl(cssUrl, ref);
         if (!abs || assets.has(abs)) continue;
         const r = await fetchAsset(abs);
-        if (r) assets.set(abs, { local: urlToAssetPath(abs), buffer: r.buffer, isCss: false });
+        if (r) assets.set(abs, { local: inferExt(urlToAssetPath(abs), r.type), buffer: r.buffer, isCss: false });
       }
     }
 
